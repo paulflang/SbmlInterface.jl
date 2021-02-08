@@ -1,12 +1,12 @@
 ```@meta
-CurrentModule = SbmlSim
+CurrentModule = SbmlInterface
 ```
 
-# SbmlSim
+# SbmlInterface
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [SbmlSim]
+Modules = [SbmlInterface]
 ```

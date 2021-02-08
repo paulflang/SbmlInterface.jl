@@ -1,4 +1,4 @@
-name = "SbmlSim"
+name = "SbmlInterface"
 uuid = "57fbc2bc-f8cb-4acb-844e-61ac977dec23"
 authors = ["Paul F. Lang"]
 version = "0.1.0"

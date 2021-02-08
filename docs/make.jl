@@ -1,14 +1,14 @@
-using SbmlSim
+using SbmlInterface
 using Documenter
 
 makedocs(;
-    modules=[SbmlSim],
+    modules=[SbmlInterface],
     authors="Paul F. Lang",
-    repo="https://github.com/paulflang/SbmlSim.jl/blob/{commit}{path}#L{line}",
-    sitename="SbmlSim.jl",
+    repo="https://github.com/paulflang/SbmlInterface.jl/blob/{commit}{path}#L{line}",
+    sitename="SbmlInterface.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://paulflang.github.io/SbmlSim.jl",
+        canonical="https://paulflang.github.io/SbmlInterface.jl",
         assets=String[],
     ),
     pages=[
@@ -17,5 +17,5 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/paulflang/SbmlSim.jl",
+    repo="github.com/paulflang/SbmlInterface.jl",
 )

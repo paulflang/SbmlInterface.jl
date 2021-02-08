@@ -1,6 +1,6 @@
-using SbmlSim
+using SbmlInterface
 using Test
 
-@testset "SbmlSim.jl" begin
+@testset "SbmlInterface.jl" begin
     # Write your tests here.
 end
