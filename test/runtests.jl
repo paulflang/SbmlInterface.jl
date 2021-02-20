@@ -2,5 +2,5 @@ using SbmlInterface
 using Test
 
 @testset "SbmlInterface.jl" begin
-    # Write your tests here.
+    @testset "sbml2modelingtoolkit.jl" begin include("sbml2modelingtoolkit.jl") end
 end

@@ -7,15 +7,26 @@ model.parameters = par
 FIXTURES = joinpath(@__DIR__, "fixtures")
 SBML_FILE = joinpath(FIXTURES, "_model.xml")
 
-@test SbmlInterface.getmodel(SBML_FILE) != 1
+# @test SbmlInterface.getmodel(SBML_FILE) != 1
 @test_nowarn SbmlInterface.getmodel(SBML_FILE)
 
-@test begin
-    model = SbmlInterface.getmodel(SBML_FILE)
-    SbmlInterface.createparameters(model)
-    isa(k1, ModelingToolkit.Num)
-    1 == 2
-end
+model = SbmlInterface.getmodel(SBML_FILE)
+parameters = SbmlInterface.getparameters(model)
+trueparameters = Any[a0 => 1.0,
+                     b0 => 1.0,
+                     k1 => 0.0,
+                     k2 => 0.0]
+@test repr(parameters) == repr(trueparameters)
+
+initialconditions = SbmlInterface.getinitialconditions(model)
+trueinitialconditons = Any[A => 1.0,
+                           B => 1.0]
+@test repr(initialconditions) == repr(trueinitialconditons)
+
+#=@test begin
+    SbmlInterface.createvariables(model)
+    isa(A, ModelingToolkit.Num)
+end=#
 
 #=@testset "sbml2odesystem.jl" begin
     sys, p, ic = sbml2odesystem(SBML_FILE)

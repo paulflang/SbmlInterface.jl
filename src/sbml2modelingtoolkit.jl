@@ -1,20 +1,20 @@
-#=function sbml2odeproblem(sbmlfile::String, tspan::Array{Real}=0:1:100, jac::Bool=true)::ODEProblem
+function sbml2odeproblem(sbmlfile::String, tspan::Array{Real}=0:1:100, jac::Bool=true)::ODEProblem
     sys, ic, p = model2odesystem(sbml_file)
     prob(tspan) = ODEProblem(sys, ic, tspan, p, jac=jac)
 end
 
 
 function sbml2odesystem(sbmlfile::String)::Tuple{ODESystem, Array{Pair}, Array{Pair}}
-    isfile(sbml_file) || throw(DomainError("`sbml_file` is not a file"))
-        Error
+    if not isfile(sbml_file)
+        throw(DomainError("`sbml_file` is not a file"))
     elseif not splitext(sbml_file)[2] in (".xml", ".sbml")
-        Error
+        throw(DomainError("`sbml_file` must have `.xml` or `.sbml` ending"))
     end
     model = getmodel(sbmlfile)
     p = getparameters(model)
     ic = getinitialconditions(model)
     ODESystem(getodes(model), p, ic)
-end=#
+end
 
 function getmodel(sbmlfile::String)
     doc = libsbml.readSBMLFromFile(sbmlfile)
@@ -123,10 +123,10 @@ end
     end
 
 
-    @parameters t
+    @ModelingToolkit.parameters t
     D = Differential(t)
-    createparameters(model)
-    createvariables(model)
+    getparameters(model)
+    getvariables(model)
 
     eqs = []
 
@@ -149,11 +149,12 @@ end=#
 
 
 #=function getparameters(model)
+    createparameters(model)
     parameters = Dict()
     for i in 0:model.getNumParameters()-1
         par = model.getParameter(i)
         println(par)
-        s = Symbol(par.getId())
+        s = par.getId())
         println(s)
         @parameters :s
         println(typeof(s)) 
@@ -163,12 +164,17 @@ end=#
 end=#
 
 
-function createparameters(model)
+function getparameters(model)
+    parameters = []
     for i in 0:model.getNumParameters()-1
-        parname = model.getParameter(i).getId()
+        par = model.getParameter(i)
+        parname = par.getId()
+        parval = par.getValue()
         eval(Meta.parse("@ModelingToolkit.parameters $parname"))
         eval(Meta.parse("export $parname"))
+        push!(parameters, eval(Meta.parse("$parname => $parval")))
     end
+    parameters
 end
 
 #=function createparameterst(model)
@@ -184,39 +190,53 @@ end=#
 
 
 #=function createvariables(model)
-    @parameters t
-    for i in 0:mod.getNumSpecies()-1
-        specie = mod.getSpecies(i)
-        if (specie.getBoundaryCondition() == true) || (specie.getId() in species)
+    eval(Meta.parse("@ModelingToolkit.parameters t"))
+    variables = []
+    for i in 0:model.getNumSpecies()-1
+        var = model.getSpecies(i)
+        varname = var.getId()
+        if (var.getBoundaryCondition() == true) || varname in [String(p.first.name) for p in species]
             continue
         end
-        speciename = specie.getId()
-        eval(Meta.parse("@variables $(speciename)(t)"))
+        eval(Meta.parse("@ModelingToolkit.variables $(varname)(t)"))
+        eval(Meta.parse("export $varval"))
+        push!(variables, eval(Meta.parse("$varname => $varval")))
     end
-end
+end=#
 
-
+#=
 function getparameternames()
 
 end
 
 function getparametervalues()::Array
 
-end
+end=#
 
 function getinitialconditions(model)
-    initial_assignments = []
-    for a in model.getListOfInitialAssignments()
-        push!(initial_assignments, a.getId()] => a.getMath().getName())
+    eval(Meta.parse("@ModelingToolkit.parameters t"))
+    initialconditions = []
+    for var in model.getListOfInitialAssignments()
+        varname = var.getId()
+        varval = var.getMath().getName()
+        if varval isa String
+            varval = model.getParameter(varval).getValue()
+        end
+        if ~(varval isa Real)
+            @warn("Initialcondition $varname is $varval, but must be of type `Real`.")
+        end
+        eval(Meta.parse("@ModelingToolkit.variables $varname"))
+        eval(Meta.parse("export $varname"))
+        push!(initialconditions, eval(Meta.parse("$varname => $varval")))
     end
-    initial_assignments
+    initialconditions
 end
 
-function getvariablenames()
+#=function getvariablenames()
 
 end
 
 function getinitialconditionvalues(sbml_model)::Array
 
-end
-=#
+end=#
+

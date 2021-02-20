@@ -3,6 +3,11 @@ uuid = "57fbc2bc-f8cb-4acb-844e-61ac977dec23"
 authors = ["Paul F. Lang"]
 version = "0.1.0"
 
+[deps]
+ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
+
 [compat]
 julia = "1.5.3"
 
