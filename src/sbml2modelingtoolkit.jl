@@ -4,7 +4,7 @@ export D
 
 function simulatesbml(sbmlfile,tspan::Tuple{Real,Real}=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5()) # ::SciMLBase.DEAlgorithm
     prob = sbml2odeproblem(sbmlfile,tspan=tspan,jac=jac)
-    solve(prob,solver)
+    OrdinaryDiffEq.solve(prob,solver)
 end
 
 function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true) #::ModelingToolkit.ODEProblem

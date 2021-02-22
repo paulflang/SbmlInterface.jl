@@ -15,8 +15,8 @@ end
 include("sbml2modelingtoolkit.jl")
 # include("objectivefrompetab.jl")
 # export sbml2modelingtoolkit
-#=export simulatesbml
+export simulatesbml
 export sbml2odeproblem,sbml2odesystem
-export getmodel,getodes,getparameters,getinitialconditions=#
+export getmodel,getodes,getparameters,getinitialconditions
 
 end
