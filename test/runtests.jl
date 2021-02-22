@@ -1,4 +1,6 @@
 using SbmlInterface
+using ModelingToolkit
+using OrdinaryDiffEq
 using Test
 
 @testset "SbmlInterface.jl" begin

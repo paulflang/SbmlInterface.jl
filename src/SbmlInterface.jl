@@ -1,7 +1,7 @@
 module SbmlInterface
 
 using ModelingToolkit
-export ModelingToolkit
+# using OrdinaryDiffEq
 
 ENV["PYTHON"] = Sys.which("python")
 using PyCall

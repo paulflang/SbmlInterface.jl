@@ -1,27 +1,55 @@
-#=model = libsbml.model
-par = ["a", "b"]
-model.parameters = par
-@test getparameters(model) == par
-@test=#
-
 FIXTURES = joinpath(@__DIR__, "fixtures")
 SBML_FILE = joinpath(FIXTURES, "_model.xml")
 
-# @test SbmlInterface.getmodel(SBML_FILE) != 1
+# test getmodel
 @test_nowarn SbmlInterface.getmodel(SBML_FILE)
-
 model = SbmlInterface.getmodel(SBML_FILE)
+
+# test getparameters
 parameters = SbmlInterface.getparameters(model)
-trueparameters = Any[a0 => 1.0,
-                     b0 => 1.0,
-                     k1 => 0.0,
-                     k2 => 0.0]
+trueparameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
+                                                   b0 => 1.0,
+                                                   k1 => 0.0,
+                                                   k2 => 0.0,
+                                                   compartment => 1.0]
 @test repr(parameters) == repr(trueparameters)
 
+# test getinitialconditions
 initialconditions = SbmlInterface.getinitialconditions(model)
-trueinitialconditons = Any[A => 1.0,
-                           B => 1.0]
+trueinitialconditons = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
+                                                         B => 1.0]
 @test repr(initialconditions) == repr(trueinitialconditons)
+
+# test getodes
+eqs = SbmlInterface.getodes(model)
+trueeqs = ModelingToolkit.Equation[
+            D(B) ~ 1.0 * (compartment * k1 * A) - 1.0 * (compartment * k2 * B),
+            D(A) ~ -1.0 * (compartment * k1 * A) + 1.0 * (compartment * k2 * B)
+          ]
+@test repr(eqs) == repr(trueeqs)
+sys = ModelingToolkit.ODESystem(eqs)
+@test repr(ModelingToolkit.get_iv(sys)) == "t"
+@test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
+    
+# test sbml2odesystem
+sys,ic,p = SbmlInterface.sbml2odesystem(SBML_FILE)
+println(sys)
+println(ic)
+println(p)
+@test repr(ModelingToolkit.get_iv(sys)) == "t"
+@test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
+#=@test repr(ModelingToolkit.get_default_p(sys)) == "Dict{Sym{ModelingToolkit.Parameter{Real}},Float64}(b0 => 1.0,a0 => 1.0,k1 => 0.0,k2 => 0.0,compartment => 1.0)"
+@test repr(ModelingToolkit.get_default_u0(sys)) == "Dict{Term{Real},Float64}(B(t) => 1.0,A(t) => 1.0)"=#
+
+# test sbml2odeproblem
+prob = SbmlInterface.sbml2odeproblem(SBML_FILE)
+println(prob)
+@test_nowarn solve(prob,OrdinaryDiffEq.Tsit5())
+
+# test simulatesbml
+#=sol = SbmlInterface.simulatesbml(SBML_FILE,(0.0,1.0))
+println(sol)
+@test 1==1=#
 
 #=@test begin
     SbmlInterface.createvariables(model)

@@ -1,19 +1,32 @@
-function sbml2odeproblem(sbmlfile::String, tspan::Array{Real}=0:1:100, jac::Bool=true)::ODEProblem
-    sys, ic, p = model2odesystem(sbml_file)
-    prob(tspan) = ODEProblem(sys, ic, tspan, p, jac=jac)
+@ModelingToolkit.parameters t
+D = ModelingToolkit.Differential(t)
+export D
+
+function simulatesbml(sbmlfile,tspan::Tuple{Real,Real}=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5()) # ::SciMLBase.DEAlgorithm
+    prob = sbml2odeproblem(sbmlfile,tspan,jac)
+    sol = solve(prob,solver)
 end
 
+function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true) #::ModelingToolkit.ODEProblem
+    model = SbmlInterface.getmodel(sbmlfile)
+    p = getparameters(model)
+    ic = getinitialconditions(model)
+    sys,ic,p = sbml2odesystem(sbmlfile)
+    prob = ModelingToolkit.ODEProblem(sys,ic,tspan,p)
+    prob
+end
 
-function sbml2odesystem(sbmlfile::String)::Tuple{ODESystem, Array{Pair}, Array{Pair}}
-    if not isfile(sbml_file)
-        throw(DomainError("`sbml_file` is not a file"))
-    elseif not splitext(sbml_file)[2] in (".xml", ".sbml")
-        throw(DomainError("`sbml_file` must have `.xml` or `.sbml` ending"))
+function sbml2odesystem(sbmlfile::String) #::ModelingToolkit.ODESystem
+    if !isfile(sbmlfile)
+        throw(DomainError("`sbmlfile` is not a file"))
+    elseif !(splitext(sbmlfile)[2] in (".xml", ".sbml"))
+        throw(DomainError("`sbmlfile` must have `.xml` or `.sbml` ending"))
     end
     model = getmodel(sbmlfile)
     p = getparameters(model)
     ic = getinitialconditions(model)
-    ODESystem(getodes(model), p, ic)
+    sys = ModelingToolkit.ODESystem(getodes(model))
+    sys,ic,p
 end
 
 function getmodel(sbmlfile::String)
@@ -47,7 +60,7 @@ function getmodel(sbmlfile::String)
 end
 
 
-#=function getodes(model)::Array
+function getodes(model)::Array
     assignments = []
     for a in model.getListOfRules()
         if (a.getMath().getName() == nothing) || (a.getMath().getName() == "piecewise")
@@ -56,37 +69,37 @@ end
         push!(assignments, a.getId() => a.getMath().getName())
     end
 
-    reactions = []  # list of reaction => kinetic formula pairs in JuMP format
+    reactions = Dict()  # list of reaction => kinetic formula pairs in JuMP format
     for i in 0:model.getNumReactions()-1
         reaction = model.getReaction(i)
         kinetics = reaction.getKineticLaw()
         kinetic_components = kinetics.getFormula()
-        push!(reactions, reaction.getId() => kinetic_components)  # jump_formula
+        reactions[reaction.getId()] = kinetic_components  # jump_formula
     end
 
     species = Dict()  # dict of species and stoichiometry-reactionId tuple they are involved in
-    for i in 0:mod.getNumSpecies()-1
-        specie = mod.getSpecies(i)
-        if (specie.getBoundaryCondition() == true) || (specie.getId() in species)
+    for i in 0:model.getNumSpecies()-1
+        specie = model.getSpecies(i)
+        if (specie.getBoundaryCondition() == true) || (specie.getId() in keys(species))
             continue
         end
         species[specie.getId()] = []
     end
 
-    function createspecies(speciename::String)
+#=    function createspecies(speciename::String)
         # :($speciename = ModelingToolkit.Variable(Symbol($speciename)))
 
         expr = "$speciename = Num(ModelingToolkit.Variable(:$speciename))"
         println(expr)
         return Meta.parse(expr)
-    end
+    end=#
 
-    for i in 0:mod.getNumReactions()-1
-        reaction = mod.getReaction(i)
+    for i in 0:model.getNumReactions()-1
+        reaction = model.getReaction(i)
         kinetics = reaction.getKineticLaw()
         for j in 0:reaction.getNumReactants()-1
             ref = reaction.getReactant(j)
-            specie = mod.getSpecies(ref.getSpecies())
+            specie = model.getSpecies(ref.getSpecies())
             products = [r.getSpecies() for r in reaction.getListOfProducts()]
             if specie.getBoundaryCondition() == true
                 print("continuing...")
@@ -99,9 +112,9 @@ end
                 stoich = stoich_p + stoich
             end
             if stoich < 0
-                stoich = String(stoich)
+                stoich = string(stoich)
             elseif stoich > 0
-                stoich = "+"*String(stoich)
+                stoich = "+"*string(stoich)
             else
                 stoich = ""
             end
@@ -118,34 +131,36 @@ end
                 print("continuing")
                 continue
             end
-            push!(species[specie.getId()], ("+"*String(ref.getStoichiometry()), reaction.getId()))
+            push!(species[specie.getId()], ("+"*string(ref.getStoichiometry()), reaction.getId()))
         end
     end
 
 
-    @ModelingToolkit.parameters t
-    D = Differential(t)
+#=    @ModelingToolkit.parameters t
+    D = ModelingToolkit.Differential(t)
+    eval(Meta.parse("export D"))=#
     getparameters(model)
-    getvariables(model)
+    getinitialconditions(model)
 
-    eqs = []
+    eqs = ModelingToolkit.Equation[]
 
     # Write ODEs
-    for specie in species  # For every species
+    for specie in keys(species)  # For every species
         if species[specie] != ""
-            lhs = Meta.parse("D($specie)")
+            lhs = eval(Meta.parse("D($specie)")) # Meta.parse("Differential(t)($specie(t))")
             rhs = ""
             for (coef, reaction_name) in species[specie]  # For every reaction
                 reaction_formula = " $coef * ( $(reactions[reaction_name]) )"
                 rhs = rhs*reaction_formula
             end
-        rhs = Meta.parse(rhs)
+        rhs = eval(Meta.parse(rhs))
         eqn = ModelingToolkit.Equation(lhs, rhs)
-        push!(eqs, eqn)
+        # eqn = Equation[lhs ~ rhs]
+        push!(eqs, lhs ~ rhs)
         end
     end
     eqs
-end=#
+end
 
 
 #=function getparameters(model)
@@ -165,7 +180,7 @@ end=#
 
 
 function getparameters(model)
-    parameters = []
+    parameters = Pair{ModelingToolkit.Num,Float64}[]
     for i in 0:model.getNumParameters()-1
         par = model.getParameter(i)
         parname = par.getId()
@@ -173,6 +188,14 @@ function getparameters(model)
         eval(Meta.parse("@ModelingToolkit.parameters $parname"))
         eval(Meta.parse("export $parname"))
         push!(parameters, eval(Meta.parse("$parname => $parval")))
+    end
+    for i in 0:model.getNumCompartments()-1
+        comp = model.getCompartment(i)
+        compname = comp.getId()
+        compval = comp.getSize()
+        eval(Meta.parse("@ModelingToolkit.parameters $compname"))
+        eval(Meta.parse("export $compname"))
+        push!(parameters, eval(Meta.parse("$compname => $compval")))
     end
     parameters
 end
@@ -195,7 +218,7 @@ end=#
     for i in 0:model.getNumSpecies()-1
         var = model.getSpecies(i)
         varname = var.getId()
-        if (var.getBoundaryCondition() == true) || varname in [String(p.first.name) for p in species]
+        if (var.getBoundaryCondition() == true) || varname in [string(p.first.name) for p in species]
             continue
         end
         eval(Meta.parse("@ModelingToolkit.variables $(varname)(t)"))
@@ -215,17 +238,17 @@ end=#
 
 function getinitialconditions(model)
     eval(Meta.parse("@ModelingToolkit.parameters t"))
-    initialconditions = []
+    initialconditions = Pair{ModelingToolkit.Num,Float64}[]
     for var in model.getListOfInitialAssignments()
         varname = var.getId()
         varval = var.getMath().getName()
         if varval isa String
             varval = model.getParameter(varval).getValue()
         end
-        if ~(varval isa Real)
+        #=if !(varval isa Real)
             @warn("Initialcondition $varname is $varval, but must be of type `Real`.")
-        end
-        eval(Meta.parse("@ModelingToolkit.variables $varname"))
+        end=#
+        eval(Meta.parse("@ModelingToolkit.variables $varname(t)"))
         eval(Meta.parse("export $varname"))
         push!(initialconditions, eval(Meta.parse("$varname => $varval")))
     end
