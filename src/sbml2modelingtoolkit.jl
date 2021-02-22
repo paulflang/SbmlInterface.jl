@@ -2,12 +2,12 @@
 D = ModelingToolkit.Differential(t)
 export D
 
-function simulatesbml(sbmlfile,tspan::Tuple{Real,Real}=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5()) # ::SciMLBase.DEAlgorithm
+function simulatesbml(sbmlfile;tspan=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5())
     prob = sbml2odeproblem(sbmlfile,tspan=tspan,jac=jac)
     OrdinaryDiffEq.solve(prob,solver)
 end
 
-function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true) #::ModelingToolkit.ODEProblem
+function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true)
     model = SbmlInterface.getmodel(sbmlfile)
     p = getparameters(model)
     u0 = getinitialconditions(model)
@@ -15,7 +15,7 @@ function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true) #::Mo
     ModelingToolkit.ODEProblem(sys,u0,tspan,p)
 end
 
-function sbml2odesystem(sbmlfile::String) #::ModelingToolkit.ODESystem
+function sbml2odesystem(sbmlfile::String)
     if !isfile(sbmlfile)
         throw(DomainError("`sbmlfile` is not a file"))
     elseif !(splitext(sbmlfile)[2] in (".xml", ".sbml"))
