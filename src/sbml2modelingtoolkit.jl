@@ -3,17 +3,16 @@ D = ModelingToolkit.Differential(t)
 export D
 
 function simulatesbml(sbmlfile,tspan::Tuple{Real,Real}=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5()) # ::SciMLBase.DEAlgorithm
-    prob = sbml2odeproblem(sbmlfile,tspan,jac)
-    sol = solve(prob,solver)
+    prob = sbml2odeproblem(sbmlfile,tspan=tspan,jac=jac)
+    solve(prob,solver)
 end
 
 function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true) #::ModelingToolkit.ODEProblem
     model = SbmlInterface.getmodel(sbmlfile)
     p = getparameters(model)
-    ic = getinitialconditions(model)
-    sys,ic,p = sbml2odesystem(sbmlfile)
-    prob = ModelingToolkit.ODEProblem(sys,ic,tspan,p)
-    prob
+    u0 = getinitialconditions(model)
+    sys,u0,p = sbml2odesystem(sbmlfile)
+    ModelingToolkit.ODEProblem(sys,u0,tspan,p)
 end
 
 function sbml2odesystem(sbmlfile::String) #::ModelingToolkit.ODESystem
@@ -24,9 +23,9 @@ function sbml2odesystem(sbmlfile::String) #::ModelingToolkit.ODESystem
     end
     model = getmodel(sbmlfile)
     p = getparameters(model)
-    ic = getinitialconditions(model)
+    u0 = getinitialconditions(model)
     sys = ModelingToolkit.ODESystem(getodes(model))
-    sys,ic,p
+    sys,u0,p
 end
 
 function getmodel(sbmlfile::String)

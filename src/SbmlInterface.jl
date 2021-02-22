@@ -1,7 +1,7 @@
 module SbmlInterface
 
 using ModelingToolkit
-# using OrdinaryDiffEq
+using OrdinaryDiffEq
 
 ENV["PYTHON"] = Sys.which("python")
 using PyCall
@@ -15,5 +15,8 @@ end
 include("sbml2modelingtoolkit.jl")
 # include("objectivefrompetab.jl")
 # export sbml2modelingtoolkit
+#=export simulatesbml
+export sbml2odeproblem,sbml2odesystem
+export getmodel,getodes,getparameters,getinitialconditions=#
 
 end

@@ -32,10 +32,7 @@ sys = ModelingToolkit.ODESystem(eqs)
 @test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
     
 # test sbml2odesystem
-sys,ic,p = SbmlInterface.sbml2odesystem(SBML_FILE)
-println(sys)
-println(ic)
-println(p)
+sys,u0,p = SbmlInterface.sbml2odesystem(SBML_FILE)
 @test repr(ModelingToolkit.get_iv(sys)) == "t"
 @test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
 #=@test repr(ModelingToolkit.get_default_p(sys)) == "Dict{Sym{ModelingToolkit.Parameter{Real}},Float64}(b0 => 1.0,a0 => 1.0,k1 => 0.0,k2 => 0.0,compartment => 1.0)"
@@ -45,6 +42,18 @@ println(p)
 prob = SbmlInterface.sbml2odeproblem(SBML_FILE)
 println(prob)
 @test_nowarn solve(prob,OrdinaryDiffEq.Tsit5())
+
+# test simulatesbml
+@test_nowarn SbmlInterface.simulatesbml(SBML_FILE)
+
+
+# reserve package name
+# export variables
+# change parameters
+# add function output stuff
+# add test cases
+# check that there are no warnings
+# continuous integration
 
 # test simulatesbml
 #=sol = SbmlInterface.simulatesbml(SBML_FILE,(0.0,1.0))
@@ -57,10 +66,10 @@ println(sol)
 end=#
 
 #=@testset "sbml2odesystem.jl" begin
-    sys, p, ic = sbml2odesystem(SBML_FILE)
+    sys, p, u0 = sbml2odesystem(SBML_FILE)
 #=    @test sys = b
     @test p = d
-    @test ic = e=#
+    @test u0 = e=#
 end=#
 
 
