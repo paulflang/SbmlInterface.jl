@@ -40,7 +40,6 @@ sys,u0,p = sbml2odesystem(SBML_FILE)
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE)
-println(prob)
 @test prob.u0 == [0.0, 1.0]  # "Pair{ModelingToolkit.Num,Float64}[A => 1.0,B => 0.0]"
 @test prob.tspan == (0.0, 10.0)
 @test prob.p == [0.8, 0.6, 1.0]
@@ -62,6 +61,8 @@ sol2 = simulatesbml(joinpath(FIXTURES, "_model_v1.xml"))
 # check that there are no warnings
 # continuous integration
 # add t_out
+# update readme
+# write docs
 # reserve package name
 
 # test simulatesbml
