@@ -38,7 +38,7 @@ jobs:
       - run: |
           julia -e '
             using Pkg
-            ENV["PYTHON"] = Sys.which("python")''
+            ENV["PYTHON"] = Sys.which("python")'
       #      Pkg.build("PyCall")'
       # - uses: actions/cache@v1
       #   env:
