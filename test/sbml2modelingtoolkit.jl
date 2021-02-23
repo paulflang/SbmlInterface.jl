@@ -42,7 +42,7 @@ sys,u0,p = sbml2odesystem(SBML_FILE)
 prob = sbml2odeproblem(SBML_FILE)
 @test prob.u0 == [0.0, 1.0]  # "Pair{ModelingToolkit.Num,Float64}[A => 1.0,B => 0.0]"
 @test prob.tspan == (0.0, 10.0)
-@test prob.p == [0.8, 0.6, 1.0]
+@test Set(prob.p) == Set([0.8, 0.6, 1.0])  # Todo: try removing the Set() when new ODEproblem version is released.
 @test_nowarn OrdinaryDiffEq.solve(prob,OrdinaryDiffEq.Tsit5())
 @test_nowarn sbml2odeproblem(SBML_FILE,tspan=(0.0,1.0),jac=false)
 
