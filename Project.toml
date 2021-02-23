@@ -10,6 +10,7 @@ PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
 SymbolicUtils = "d1185830-fcd6-423d-90d6-eec64667417b"
 
 [compat]
+OrdinaryDiffEq = "5.51"
 julia = "1.5.3"
 
 [extras]
