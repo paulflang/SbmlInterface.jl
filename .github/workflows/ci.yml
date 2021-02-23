@@ -35,6 +35,11 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
+      - run: |
+          julia -e '
+            using Pkg
+            ENV["PYTHON"] = Sys.which("python")
+            Pkg.build("PyCall")'
       # - uses: actions/cache@v1
       #   env:
       #     cache-name: cache-artifacts
