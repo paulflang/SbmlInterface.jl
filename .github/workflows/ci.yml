@@ -23,6 +23,8 @@ jobs:
             arch: x86
     steps:
       - run: |
+          python --version
+          echo ran pv
           python -m pip install upgrade pip
           pip install python-libsbml
       - uses: actions/checkout@v2

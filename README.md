@@ -4,3 +4,57 @@
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://paulflang.github.io/SbmlInterface.jl/dev)
 [![Build Status](https://github.com/paulflang/SbmlInterface.jl/workflows/CI/badge.svg)](https://github.com/paulflang/SbmlInterface.jl/actions)
 [![Coverage](https://codecov.io/gh/paulflang/SbmlInterface.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/paulflang/SbmlInterface.jl)
+
+SbmlInterface.jl is a lightweight tool to import models specified in the Systems Biology Markup Language (SBML) into Julia. More specifically, SbmlInterface.jl uses the Python libsbml library to extract ordinary differential equations, initial conditions and parameter values from SBML files. Events and constraints and several other SBML components are not yet supported. There are several ways to specify the same model in SBML and SbmlInterface. Please help us improving SbmlInterface.jl by creating a GitHub issue if you experience errors when converting your SBML model to Julia.
+
+## Installation
+SbmlInterface.jl is not yet available on the Julia package managing system. To install SbmlInterface please first clone this repository:
+  ```
+  user@bash:/$ git clone https://github.com/paulflang/SbmlInterface.jl.git
+  ```
+As SbmlInterface.jl relies on the Python libsbml library, please make sure your version of Julia can communicate with a Python environment were libsbml is installed. Please follow the [PyCall installation instructions](https://github.com/JuliaPy/PyCall.jl) or:
+* create a Python virtual environment and activate it:
+  ```
+  user@bash:/$ python -m venv venv
+  user@bash:/$ source venv/bin/activate
+  ```
+* install python-libsbml to the python environment:
+  ```
+  user@bash:/$ pip install python-libsbml
+  ```
+* start the Julia REPL:
+  ```
+  user@bash:/$ julia
+  ```
+* activate the Julia virtual environment:
+  ```julia
+  julia> ]
+  (v1.5) pkg> activate .
+  ```
+* install PyCall.jl into the Julia virtual environment:
+  ```julia
+  (SbmlInterface) pkg> add PyCall
+  (SbmlInterface) pkg> build PyCall
+  ```
+* and add SbmlInterface.jl:
+  ```julia
+  (SbmlInterface) pkg> dev .
+  ```
+
+## Tutorial
+SBML models can be simulated with the following 6 steps:
+```julia
+    julia> using SbmlInterface
+
+    julia> model = SbmlInterface.getmodel('mymodel.sbml')
+    julia> p = getparameters(model)
+    julia> ic = getinitialconditions(model)
+    julia> sys = sbml2odesystem(model)
+    julia> prob = ModelingToolkit.ODEProblem(sys,[],tspan)
+    julia> sol = solve(prob,Tsit5())
+```
+If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use
+
+
+## ## License
+The package is released under the [MIT license](https://github.com/paulflang/SbmlInterface.jl/blob/main/LICENSE).
