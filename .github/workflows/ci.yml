@@ -23,10 +23,7 @@ jobs:
             arch: x86
     steps:
       - run: |
-          python --version
-          python -m pip --version
-          echo ran pv
-          python -m pip install upgrade pip
+          python -m pip install --upgrade pip
           pip install python-libsbml
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
