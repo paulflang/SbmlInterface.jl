@@ -23,12 +23,15 @@ jobs:
             arch: x86
     steps:
       - uses: actions/checkout@v2
-      # - uses: actions/setup-python@v2
-      #   with:
-      #     python-version: '3.x'
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
       - run: |
           echo installing python-libsbml
-          conda install -c bioconda python-libsbml
+          python -m venv venv
+          source venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install python-libsbml
           echo installed python-libsbml
       - uses: julia-actions/setup-julia@v1
         with:
