@@ -56,6 +56,9 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
         env:
           PYTHON : python
+        with:
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
       # -run: julia -e 'Pkg.build("PyCall")'
       - run: julia -e 'Sys.which("python")'
       # - run: julia -e 'using PyCall; PyCall.python'
