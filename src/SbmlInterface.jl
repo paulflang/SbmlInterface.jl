@@ -8,8 +8,8 @@ export solve, FunctionMap, Euler, Heun, Ralston, Midpoint, RK4, ExplicitRK, Owre
        Vern9, Feagin10, Feagin12, Feagin14, CompositeAlgorithm, Anas5, RKO65, FRK65, PFRK87, RKM
 
 ENV["PYTHON"] = Sys.which("python")
-using Pkg
-Pkg.build("PyCall")
+#=using Pkg
+Pkg.build("PyCall")=#
 using PyCall
 
 const libsbml = PyNULL()
