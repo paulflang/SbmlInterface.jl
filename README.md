@@ -10,21 +10,21 @@ SbmlInterface.jl is a lightweight tool to import models specified in the Systems
 ## Installation
 SbmlInterface.jl is not yet available on the Julia package managing system. To install SbmlInterface please first clone this repository:
   ```
-  user@bash:/$ git clone https://github.com/paulflang/SbmlInterface.jl.git
+  $ git clone https://github.com/paulflang/SbmlInterface.jl.git
   ```
 As SbmlInterface.jl relies on the Python libsbml library, please make sure your version of Julia can communicate with a Python environment were libsbml is installed. Please follow the [PyCall installation instructions](https://github.com/JuliaPy/PyCall.jl) or:
 * create a Python virtual environment and activate it:
   ```
-  user@bash:/$ python -m venv venv
-  user@bash:/$ source venv/bin/activate
+  $ python -m venv venv
+  $ source venv/bin/activate
   ```
 * install python-libsbml to the python environment:
   ```
-  user@bash:/$ pip install python-libsbml
+  $ pip install python-libsbml
   ```
 * start the Julia REPL:
   ```
-  user@bash:/$ julia
+  $ julia
   ```
 * activate the Julia virtual environment:
   ```julia
@@ -43,18 +43,27 @@ As SbmlInterface.jl relies on the Python libsbml library, please make sure your 
 
 ## Tutorial
 SBML models can be simulated with the following 6 steps:
-```julia
+  ```julia
     julia> using SbmlInterface
 
-    julia> model = SbmlInterface.getmodel('mymodel.sbml')
+    julia> model = getmodel('mymodel.sbml')
     julia> p = getparameters(model)
-    julia> ic = getinitialconditions(model)
-    julia> sys = sbml2odesystem(model)
-    julia> prob = ModelingToolkit.ODEProblem(sys,[],tspan)
+    julia> u0 = getinitialconditions(model)
+    julia> eqs = getodes(model)
+    julia> sys = ODESystem(eqs)
+    julia> prob = ODEProblem(sys,u0,(0.0,10.0),p)
     julia> sol = solve(prob,Tsit5())
-```
-If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use
+  ```
+If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use `sbml2odesystem('mymodel.sbml'), `sbml2odeproblem('mymodel.sbml')` and simulatesbml('mymodel.sbml')`, respectively.
 
 
 ## ## License
 The package is released under the [MIT license](https://github.com/paulflang/SbmlInterface.jl/blob/main/LICENSE).
+
+
+## Development team
+This package was developed by [Paul F. Lang](https://www.linkedin.com/in/paul-lang-7b54a81a3/) at the University of Oxford, UK.
+
+
+## Questions and comments
+Please contact [Paul F. Lang](mailto:paul.lang@wolfson.ox.ac.uk) with any questions or comments.
