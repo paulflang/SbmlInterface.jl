@@ -522,7 +522,7 @@ version = "0.0.1"
 
 [[SbmlInterface]]
 deps = ["ModelingToolkit", "OrdinaryDiffEq", "PyCall", "SymbolicUtils"]
-path = ".."
+path = "/media/sf_DPhil_Project/Programmes/juliadev/dev/SbmlInterface"
 uuid = "57fbc2bc-f8cb-4acb-844e-61ac977dec23"
 version = "0.1.0"
 
