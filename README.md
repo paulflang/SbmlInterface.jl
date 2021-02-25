@@ -54,10 +54,10 @@ SBML models can be simulated with the following 6 steps:
     julia> prob = ODEProblem(sys,u0,(0.0,10.0),p)
     julia> sol = solve(prob,Tsit5())
   ```
-If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use `sbml2odesystem('mymodel.sbml'), `sbml2odeproblem('mymodel.sbml')` and simulatesbml('mymodel.sbml')`, respectively.
+If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use `sbml2odesystem('mymodel.sbml'), `sbml2odeproblem('mymodel.sbml',(tstart,tend))` and simulatesbml('mymodel.sbml',(tstart,tend))`, respectively.
 
 
-## ## License
+## License
 The package is released under the [MIT license](https://github.com/paulflang/SbmlInterface.jl/blob/main/LICENSE).
 
 
