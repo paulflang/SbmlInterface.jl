@@ -187,7 +187,6 @@ function getodes(model)::Array
             ref = reaction.getReactant(j)
             specie = model.getSpecies(ref.getSpecies())
             products = [r.getSpecies() for r in reaction.getListOfProducts()]
-            println(specie)
             if specie.getBoundaryCondition() == true
                 println("continuing...")
                 continue
@@ -214,7 +213,6 @@ function getodes(model)::Array
             ref = reaction.getProduct(j)
             specie = model.getSpecies(ref.getSpecies())
             reactants = [r.getSpecies() for r in reaction.getListOfReactants()]
-            println(specie)
             if (specie.getBoundaryCondition() == true) || (specie.getName() in reactants)
                 println("continuing")
                 continue
@@ -229,14 +227,11 @@ function getodes(model)::Array
     # Write ODEs
     eqs = ModelingToolkit.Equation[]
     for specie in keys(species)  # For every species
-        println(specie)
         if species[specie] != nothing
-            println("yoyo")
             lhs = eval(Meta.parse("D($specie)"))
             rhs = "0"
             for (coef, reaction_name) in species[specie]  # For every reaction
                 reactionformula = " $coef * ( $(reactions[reaction_name]) )"
-                println(reactionformula)
                 reactionformula = replace(reactionformula, "pow"=>"^")
                 rhs = rhs*reactionformula
             end
@@ -313,15 +308,11 @@ function getinitialconditions(model)
     for i in 0:model.getNumSpecies()-1
         var = model.getSpecies(i)
         varname = var.getId()
-        println(varname)
         if var.isSetInitialConcentration()
-            println("ic")
             varval = var.getInitialConcentration()
         elseif var.isSetInitialAmount
-            println("ia")
             varval = var.getInitialAmount()  
         else
-            println("else")
             varval = initialassignments[varname]
         end
         eval(Meta.parse("@ModelingToolkit.variables $varname(t)"))
