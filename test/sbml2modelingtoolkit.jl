@@ -15,10 +15,10 @@ trueparameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
 @test repr(parameters) == repr(trueparameters)
 
 # test getinitialconditions
-initialconditions = getinitialconditions(model)
-trueinitialconditons = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
-                                                         B => 0.0]
-@test repr(initialconditions) == repr(trueinitialconditons)
+u0 = getinitialconditions(model)
+true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
+                                            B => 0.0]
+@test repr(u0) == repr(true_u0)
 
 # test getodes
 eqs = getodes(model)
