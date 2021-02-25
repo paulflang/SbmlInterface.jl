@@ -1,13 +1,23 @@
+#=`_set_julia_code` is adapted from Frank T. Bergman
+Date: 2019
+Availability: https://groups.google.com/forum/#!topic/sbml-discuss/inS4Lzp3Ri8 or
+https://www.dropbox.com/s/2bfpiausejp0gd0/convert_reactions.py?dl=0
+and based on the methods published by Sungho Shin et al. in "Scalable Nonlinear
+Programming Framework for Parameter Estimation in Dynamic Biological System Models"
+Date: 2019
+Availability: https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1006828=#
+
+
 @ModelingToolkit.parameters t
 D = ModelingToolkit.Differential(t)
 export D
 
-function simulatesbml(sbmlfile;tspan=(0.0,10.0),jac::Bool=true,solver=OrdinaryDiffEq.Tsit5())
-    prob = sbml2odeproblem(sbmlfile,tspan=tspan,jac=jac)
-    OrdinaryDiffEq.solve(prob,solver)
+function simulatesbml(sbmlfile::String,tspan;saveat::Real=1.,jac::Bool=true,solver=OrdinaryDiffEq.Tsit5())
+    prob = sbml2odeproblem(sbmlfile,tspan,jac=jac)
+    OrdinaryDiffEq.solve(prob,solver,saveat=saveat)
 end
 
-function sbml2odeproblem(sbmlfile::String;tspan=(0.0,10.0),jac::Bool=true)
+function sbml2odeproblem(sbmlfile::String,tspan;jac::Bool=true)
     model = SbmlInterface.getmodel(sbmlfile)
     p = getparameters(model)
     u0 = getinitialconditions(model)
@@ -68,15 +78,15 @@ function getodes(model)::Array
         push!(assignments, a.getId() => a.getMath().getName())
     end
 
-    reactions = Dict()  # list of reaction => kinetic formula pairs in JuMP format
+    reactions = Dict()  # Dict of reaction => kinetic formula
     for i in 0:model.getNumReactions()-1
         reaction = model.getReaction(i)
         kinetics = reaction.getKineticLaw()
         kinetic_components = kinetics.getFormula()
-        reactions[reaction.getId()] = kinetic_components  # jump_formula
+        reactions[reaction.getId()] = kinetic_components
     end
 
-    species = Dict()  # dict of species and stoichiometry-reactionId tuple they are involved in
+    species = Dict()  # Dict of species and stoichiometry-reactionId tuple they are involved in
     for i in 0:model.getNumSpecies()-1
         specie = model.getSpecies(i)
         if (specie.getBoundaryCondition() == true) || (specie.getId() in keys(species))
@@ -84,14 +94,6 @@ function getodes(model)::Array
         end
         species[specie.getId()] = []
     end
-
-#=    function createspecies(speciename::String)
-        # :($speciename = ModelingToolkit.Variable(Symbol($speciename)))
-
-        expr = "$speciename = Num(ModelingToolkit.Variable(:$speciename))"
-        println(expr)
-        return Meta.parse(expr)
-    end=#
 
     for i in 0:model.getNumReactions()-1
         reaction = model.getReaction(i)
@@ -134,19 +136,14 @@ function getodes(model)::Array
         end
     end
 
-
-#=    @ModelingToolkit.parameters t
-    D = ModelingToolkit.Differential(t)
-    eval(Meta.parse("export D"))=#
     getparameters(model)
     getinitialconditions(model)
 
-    eqs = ModelingToolkit.Equation[]
-
     # Write ODEs
+    eqs = ModelingToolkit.Equation[]
     for specie in keys(species)  # For every species
         if species[specie] != ""
-            lhs = eval(Meta.parse("D($specie)")) # Meta.parse("Differential(t)($specie(t))")
+            lhs = eval(Meta.parse("D($specie)"))
             rhs = ""
             for (coef, reaction_name) in species[specie]  # For every reaction
                 reaction_formula = " $coef * ( $(reactions[reaction_name]) )"
@@ -154,29 +151,11 @@ function getodes(model)::Array
             end
         rhs = eval(Meta.parse(rhs))
         eqn = ModelingToolkit.Equation(lhs, rhs)
-        # eqn = Equation[lhs ~ rhs]
         push!(eqs, lhs ~ rhs)
         end
     end
     eqs
 end
-
-
-#=function getparameters(model)
-    createparameters(model)
-    parameters = Dict()
-    for i in 0:model.getNumParameters()-1
-        par = model.getParameter(i)
-        println(par)
-        s = par.getId())
-        println(s)
-        @parameters :s
-        println(typeof(s)) 
-        parameters[par.getId()] = par.getValue())
-    end
-    parameters
-end=#
-
 
 function getparameters(model)
     parameters = Pair{ModelingToolkit.Num,Float64}[]
@@ -199,66 +178,33 @@ function getparameters(model)
     parameters
 end
 
-#=function createparameterst(model)
-    for i in 0:model.getNumParameters()-1
-        parname = model.getParameter(i).getId()
-        println("@parameters $parname")
-        println(Meta.parse("@parameters $parname"))
-        eval(Meta.parse("@ModelingToolkit.parameters $parname"))
-        eval(Meta.parse("export $parname"))
-        println("yo")
-    end
-end=#
-
-
-#=function createvariables(model)
-    eval(Meta.parse("@ModelingToolkit.parameters t"))
-    variables = []
-    for i in 0:model.getNumSpecies()-1
-        var = model.getSpecies(i)
-        varname = var.getId()
-        if (var.getBoundaryCondition() == true) || varname in [string(p.first.name) for p in species]
-            continue
-        end
-        eval(Meta.parse("@ModelingToolkit.variables $(varname)(t)"))
-        eval(Meta.parse("export $varval"))
-        push!(variables, eval(Meta.parse("$varname => $varval")))
-    end
-end=#
-
-#=
-function getparameternames()
-
-end
-
-function getparametervalues()::Array
-
-end=#
-
 function getinitialconditions(model)
     eval(Meta.parse("@ModelingToolkit.parameters t"))
-    initialconditions = Pair{ModelingToolkit.Num,Float64}[]
+
+    initialassignments = Dict()
     for var in model.getListOfInitialAssignments()
         varname = var.getId()
         varval = var.getMath().getName()
         if varval isa String
             varval = model.getParameter(varval).getValue()
         end
-        #=if !(varval isa Real)
-            @warn("Initialcondition $varname is $varval, but must be of type `Real`.")
-        end=#
+        initialassignments[varname] = varval
+    end
+
+    initialconditions = Pair{ModelingToolkit.Num,Float64}[]
+    for i in 0:model.getNumSpecies()-1
+        var = model.getSpecies(i)
+        varname = var.getId()
+        if var.isSetInitialConcentration()
+            varval = var.getInitialConcentration()
+        elseif var.isSetInitialAmount
+            varval = var.getInitialAmount()  
+        else
+            varval = initialassignments[varname]
+        end
         eval(Meta.parse("@ModelingToolkit.variables $varname(t)"))
         eval(Meta.parse("export $varname"))
         push!(initialconditions, eval(Meta.parse("$varname => $varval")))
     end
     initialconditions
 end
-
-#=function getvariablenames()
-
-end
-
-function getinitialconditionvalues(sbml_model)::Array
-
-end=#
-
