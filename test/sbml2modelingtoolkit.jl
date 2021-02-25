@@ -48,10 +48,4 @@ prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
 sol1 = simulatesbml(SBML_FILE,(0.0,10.0))
 @test sol1[end] ≈ [0.5714271572277619, 0.42857284277223784]
 @test_nowarn simulatesbml(SBML_FILE,(0.0,1.0),saveat=0.5,jac=false,solver=OrdinaryDiffEq.Vern9())
-sol2 = simulatesbml(joinpath(FIXTURES, "_model_v2.xml"),(0.0,10.0))
-@test sol2[end] ≈ [0.5714271572277619, 0.42857284277223784]
-
-
-# update readme
-# write docs
-# reserve package name
+@test_nowarn simulatesbml(joinpath(FIXTURES, "model_Vinod_FEBS2015.xml"),(0.0,1.0))
