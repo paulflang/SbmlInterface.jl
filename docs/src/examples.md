@@ -19,4 +19,4 @@ using Plots
 plot(sol,vars=[Cb,pCb,B55],lw=3,",size=(600,400),legend=:right)
 ```
 
-![Vinod_FEBS2015](https://github.com/paulflang/SbmlInterface.jl/blob/main/docs/src/Vinod_FEBS2015.png "Vinod_FEBS2015")
+![Vinod_FEBS2015](./Vinod_FEBS2015.png)
