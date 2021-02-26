@@ -24,4 +24,5 @@ makedocs(;
 
 deploydocs(;
     repo="github.com/paulflang/SbmlInterface.jl",
+    devbranch="main"
 )
