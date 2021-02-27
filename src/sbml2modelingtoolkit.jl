@@ -5,8 +5,8 @@
 ###################################################################################
 
 @ModelingToolkit.parameters t
-D = ModelingToolkit.Differential(t)
-export D
+_Differential = ModelingToolkit.Differential(t)
+export _Differential
 
 """
     simulatesbml(sbmlfile::String,tspan;saveat::Real=1.,jac::Bool=true,
@@ -228,7 +228,7 @@ function getodes(model)::Array
     eqs = ModelingToolkit.Equation[]
     for specie in keys(species)  # For every species
         if species[specie] != nothing
-            lhs = eval(Meta.parse("D($specie)"))
+            lhs = eval(Meta.parse("_Differential($specie)"))
             rhs = "0"
             for (coef, reaction_name) in species[specie]  # For every reaction
                 reactionformula = " $coef * ( $(reactions[reaction_name]) )"
