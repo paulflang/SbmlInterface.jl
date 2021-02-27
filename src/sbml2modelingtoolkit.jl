@@ -23,7 +23,7 @@ Simulate model from SBML file and return an ODESolution.
 
 # Example
 ```julia-repl
-julia> sol = simulatesbml('mymodel.sbml',(0.0,1.0))
+julia> sol = simulatesbml("mymodel.sbml",(0.0,1.0))
 retcode: Success
 Interpolation: 1st order linear
 t: 2-element Array{Float64,1}:
