@@ -4,6 +4,7 @@ authors = ["Paul F. Lang"]
 version = "0.1.0"
 
 [deps]
+Glob = "c27321d9-0574-5035-807b-f59d2c89b15c"
 ModelingToolkit = "961ee093-0014-501f-94e3-6117800e7a78"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
 PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"

@@ -157,7 +157,7 @@ julia> model = getodes(SBML_FILE)
 function getodes(model)::Array
     assignments = []
     for a in model.getListOfRules()
-        if (a.getMath().getName() == nothing) || (a.getMath().getName() == "piecewise")
+        if (a.getMath().getName() == "piecewise") # || (a.getMath().getName() == nothing)
             @error("Assignment rules are not implemented.")
         end
         push!(assignments, a.getId() => a.getMath().getName())
