@@ -8,7 +8,7 @@ SBML models can be simulated with the following 6 steps:
 ```julia
 using SbmlInterface
 
-model = getmodel('mymodel.sbml')
+model = getmodel("mymodel.sbml")
 p = getparameters(model)
 u0 = getinitialconditions(model)
 eqs = getodes(model)
