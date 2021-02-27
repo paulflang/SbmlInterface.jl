@@ -9,9 +9,10 @@ SbmlInterface.jl is not yet available on the Julia package managing system. To i
   $ git clone https://github.com/paulflang/SbmlInterface.jl.git
   ```
 As SbmlInterface.jl relies on the Python libsbml library, please make sure your version of Julia can communicate with a Python environment were libsbml is installed. Please follow the [PyCall installation instructions](https://github.com/JuliaPy/PyCall.jl) or:
-* create a Python virtual environment and activate it:
+* create a Python virtual environment in the SbmlInterface.jl directory and activate it:
   ```
-  $ python -m venv venv
+  $ cd SbmlInterface.jl/
+  $ python3 -m venv venv
   $ source venv/bin/activate
   ```
 * install python-libsbml to the python environment:
@@ -22,17 +23,9 @@ As SbmlInterface.jl relies on the Python libsbml library, please make sure your 
   ```
   $ julia
   ```
-* activate the Julia virtual environment:
+* and activate the Julia virtual environment:
   ```julia
   julia> ]
   (v1.5) pkg> activate .
   ```
-* install PyCall.jl into the Julia virtual environment:
-  ```julia
-  (SbmlInterface) pkg> add PyCall
-  (SbmlInterface) pkg> build PyCall
-  ```
-* and add SbmlInterface.jl:
-  ```julia
-  (SbmlInterface) pkg> dev .
-  ```
+When `using SbmlInterface` Julia will be able to communicate with the python virtual environment where you have installed libsbml.
