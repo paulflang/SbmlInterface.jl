@@ -44,17 +44,17 @@ As SbmlInterface.jl relies on the Python libsbml library, please make sure your 
 ## Tutorial
 SBML models can be simulated with the following 6 steps:
   ```julia
-    julia> using SbmlInterface
+    using SbmlInterface
 
-    julia> model = getmodel('mymodel.sbml')
-    julia> p = getparameters(model)
-    julia> u0 = getinitialconditions(model)
-    julia> eqs = getodes(model)
-    julia> sys = ODESystem(eqs)
-    julia> prob = ODEProblem(sys,u0,(0.0,10.0),p)
-    julia> sol = solve(prob,Tsit5())
+    model = getmodel("mymodel.sbml")
+    p = getparameters(model)
+    u0 = getinitialconditions(model)
+    eqs = getodes(model)
+    sys = ODESystem(eqs)
+    prob = ODEProblem(sys,u0,(0.0,10.0),p)
+    sol = solve(prob,Tsit5())
   ```
-If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use `sbml2odesystem('mymodel.sbml')`, `sbml2odeproblem('mymodel.sbml',(tstart,tend))` and `simulatesbml('mymodel.sbml',(tstart,tend))`, respectively.
+If you want to create an `ODESystem`, `ODEProblem` or solution `Array` directly from an SBML file use `sbml2odesystem("mymodel.sbml")`, `sbml2odeproblem("mymodel.sbml",(tstart,tend))` and `simulatesbml("mymodel.sbml",(tstart,tend))`, respectively.
 
 
 ## License
