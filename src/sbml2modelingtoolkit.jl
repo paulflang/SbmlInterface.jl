@@ -310,7 +310,7 @@ function getinitialconditions(model)
         varname = var.getId()
         if var.isSetInitialConcentration()
             varval = var.getInitialConcentration()
-        elseif var.isSetInitialAmount
+        elseif var.isSetInitialAmount()
             varval = var.getInitialAmount()  
         else
             varval = initialassignments[varname]
