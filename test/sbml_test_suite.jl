@@ -1,8 +1,13 @@
-# assumes this is cloned: https://github.com/sbmlteam/sbml-test-suite
-path  = joinpath("/home/runner/work/", "sbml-test-suite/cases/")
-@test isdir(path)
+test_suite_path = joinpath(homedir(), "sbml-test-suite")
+run(`git clone https://github.com/sbmlteam/sbml-test-suite $(test_suite_path)`)
 
-function extract_xmls()
+@show pwd()
+@show readdir(homedir())
+@show readdir(test_suite_path)
+@test isdir(test_suite_path)
+@test true
+
+function extract_xmls(path)
     dirs = filter(isdir, readdir(path; join=true))
     all_dirs = mapreduce(x -> filter(isdir, readdir(x; join=true)), vcat, dirs)
     all_files = vcat(readdir.(all_dirs; join=true)...)
@@ -29,7 +34,7 @@ function filtermap(f, x)
     arr[.!(@. typeof(arr) <: Exception)]
 end
 
-all_files = extract_xmls()
+all_files = extract_xmls(test_suite_path)
 @test all_files isa Vector{String}
 
 n = length(all_files)
