@@ -1,9 +1,6 @@
 name: CI
 on:
-  push:
-    branches:
-      - main
-      - features
+  - push
   - pull_request
 jobs:
   test:
