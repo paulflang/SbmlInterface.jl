@@ -23,8 +23,8 @@ true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
 # test getodes
 eqs = getodes(model)
 trueeqs = ModelingToolkit.Equation[
-            D(B) ~ 1.0 * (compartment * k1 * A) - 1.0 * (compartment * k2 * B),
-            D(A) ~ -1.0 * (compartment * k1 * A) + 1.0 * (compartment * k2 * B)
+            _Differential(B) ~ 1.0 * (compartment * k1 * A) - 1.0 * (compartment * k2 * B),
+            _Differential(A) ~ -1.0 * (compartment * k1 * A) + 1.0 * (compartment * k2 * B)
           ]
 @test repr(eqs) == repr(trueeqs)
 sys = ModelingToolkit.ODESystem(eqs)
