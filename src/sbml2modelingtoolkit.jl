@@ -188,7 +188,6 @@ function getodes(model)::Array
             specie = model.getSpecies(ref.getSpecies())
             products = [r.getSpecies() for r in reaction.getListOfProducts()]
             if specie.getBoundaryCondition() == true
-                println("continuing...")
                 continue
             end
             stoich = -ref.getStoichiometry()
@@ -214,7 +213,6 @@ function getodes(model)::Array
             specie = model.getSpecies(ref.getSpecies())
             reactants = [r.getSpecies() for r in reaction.getListOfReactants()]
             if (specie.getBoundaryCondition() == true) || (specie.getName() in reactants)
-                println("continuing")
                 continue
             end
             push!(species[specie.getId()], ("+"*string(ref.getStoichiometry()), reaction.getId()))
