@@ -1,6 +1,6 @@
 name: CI
 on:
-  - push
+  push:
     branches:
       - main
       - features
@@ -22,8 +22,8 @@ jobs:
           - x64
     steps:
       - uses: actions/checkout@v2
-          with: 
-            repository: sbmlteam/sbml-test-suite
+        with: 
+          repository: sbmlteam/sbml-test-suite
       - uses: actions/setup-python@v2
       - run: |
           python -m pip install --upgrade pip
