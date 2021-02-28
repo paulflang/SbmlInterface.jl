@@ -1,5 +1,5 @@
 # assumes this is cloned: https://github.com/sbmlteam/sbml-test-suite
-path  = joinpath(homedir(), "sbml-test-suite/cases/")
+path  = joinpath("sbml", "sbml-test-suite/cases/")
 @test isdir(path)
 
 function extract_xmls()
