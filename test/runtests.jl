@@ -6,6 +6,7 @@ using Test
 @testset "SbmlInterface.jl" begin
     @show readdir()
     @show readdir(homedir())
+    @show readdir("/home/runner/work/")
     @show pwd()
     @test true
     # @testset "sbml2modelingtoolkit.jl" begin include("sbml2modelingtoolkit.jl") end
