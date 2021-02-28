@@ -1,5 +1,3 @@
-using SbmlInterface, ModelingToolkit, OrdinaryDiffEq, SciMLBase, DataFrames
-
 # assumes this is cloned: https://github.com/sbmlteam/sbml-test-suite
 path  = joinpath(homedir(), "sbml-test-suite/cases/")
 @test isdir(path)
@@ -28,7 +26,7 @@ end
 # theres probably an idiomatic way to do this
 function filtermap(f, x)
     arr = call_save_err(f, x)
-    arr[Not(@. typeof(arr) <: Exception)]
+    arr[.!(@. typeof(arr) <: Exception)]
 end
 
 all_files = extract_xmls()
@@ -50,19 +48,12 @@ num = 1000
 @time probs = call_save_err(x->sbml2odeproblem(x, (0., 1.)), all_files[1:100]); # 18.651824 seconds (37.88 M allocations: 2.416 GiB, 3.23% gc time)
 # @time probs = call_save_err(x->ODEProblem(x...), syss[1:100]); # don't do this
 
-df = DataFrame(:id => all_files, :model => models, :p => ps, :u0 => u0s, :eqs => eqs, :sys => systems) # :prob => probs)
+errored_mask = @. typeof(systems) <: Exception
+errs = systems[errored_mask, :]
+good = systems[.!(errored_mask), :]
 
-N, M = size(df)
-cols = DataFrames.names(df) 
+good_probs = probs[.!(@. typeof(probs) <: Exception)] # eventually benchmark solve on these
 
-errored_mask = @. typeof(df[:, :sys]) <: Exception
-errs = df[errored_mask, :]
-good = df[Not(errored_mask), :]
-syss = good.sys
-
-good_probs = probs[Not(@. typeof(probs) <: Exception)] # eventually benchmark solve on these
-
-# plot(solve(rand(good_probs)))
-@time mtks = filtermap(modelingtoolkitize, good_probs); # 
+@time mtks = filtermap(modelingtoolkitize, good_probs); 
 eqs = unique(equations.(mtks))
 @test length(eqs) > 0 
