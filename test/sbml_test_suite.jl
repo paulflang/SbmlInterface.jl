@@ -1,11 +1,8 @@
-test_suite_path = joinpath(homedir(), "sbml-test-suite")
-run(`git clone https://github.com/sbmlteam/sbml-test-suite $(test_suite_path)`)
+test_suite_clone_path = joinpath(homedir(), "sbml-test-suite")
+run(`git clone https://github.com/sbmlteam/sbml-test-suite $(test_suite_clone_path)`)
+path = joinpath(test_suite_clone_path, "cases")
+@test isdir(path)
 
-@show pwd()
-@show readdir(homedir())
-@show readdir(test_suite_path)
-@test isdir(test_suite_path)
-@test true
 
 function extract_xmls(path)
     dirs = filter(isdir, readdir(path; join=true))
@@ -34,7 +31,7 @@ function filtermap(f, x)
     arr[.!(@. typeof(arr) <: Exception)]
 end
 
-all_files = extract_xmls(test_suite_path)
+all_files = extract_xmls(path)
 @test all_files isa Vector{String}
 
 n = length(all_files)
