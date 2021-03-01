@@ -174,7 +174,7 @@ function getodes(model)::Array
     species = Dict()  # Dict of species and stoichiometry-reactionId tuple they are involved in
     for i in 0:model.getNumSpecies()-1
         specie = model.getSpecies(i)
-        if (specie.getBoundaryCondition() == true) || (specie.getId() in keys(species))
+        if (specie.getId() in keys(species))  # || (specie.getBoundaryCondition() == true)
             continue
         end
         species[specie.getId()] = []
@@ -187,9 +187,10 @@ function getodes(model)::Array
             ref = reaction.getReactant(j)
             specie = model.getSpecies(ref.getSpecies())
             products = [r.getSpecies() for r in reaction.getListOfProducts()]
-            if specie.getBoundaryCondition() == true
-                continue
-            end
+            # if specie.getBoundaryCondition() == true
+            #     println("continuing...")
+            #     continue
+            # end
             stoich = -ref.getStoichiometry()
 
             if specie.getName() in products
@@ -212,7 +213,8 @@ function getodes(model)::Array
             ref = reaction.getProduct(j)
             specie = model.getSpecies(ref.getSpecies())
             reactants = [r.getSpecies() for r in reaction.getListOfReactants()]
-            if (specie.getBoundaryCondition() == true) || (specie.getName() in reactants)
+            if (specie.getName() in reactants)  # || (specie.getBoundaryCondition() == true)
+                # println("continuing")
                 continue
             end
             push!(species[specie.getId()], ("+"*string(ref.getStoichiometry()), reaction.getId()))
@@ -225,7 +227,7 @@ function getodes(model)::Array
     # Write ODEs
     eqs = ModelingToolkit.Equation[]
     for specie in keys(species)  # For every species
-        if species[specie] != nothing
+        if species[specie] != []  # nothing
             lhs = eval(Meta.parse("_Differential($specie)"))
             rhs = "0"
             for (coef, reaction_name) in species[specie]  # For every reaction
