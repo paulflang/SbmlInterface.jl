@@ -15,6 +15,7 @@ trueparameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
 @test repr(parameters) == repr(trueparameters)
 
 # test getinitialconditions
+@parameters t
 u0 = getinitialconditions(model)
 true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
                                             B => 0.0]
@@ -22,8 +23,10 @@ true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
 
 # test getodes
 rxs = getreactions(model)
-truerxs = "Reaction[Reaction{Any,Float64}(compartment*k1*A(t), Term{Real}[A(t)], Term{Real}[B(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true), Reaction{Any,Float64}(compartment*k2*B(t), Term{Real}[B(t)], Term{Real}[A(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => -1.0, A(t) => 1.0], true)]"
-@test repr(rxs) == truerxs
+# truerxs = "Reaction[Reaction{Any,Float64}(compartment*k1*A(t), Term{Real}[A(t)], Term{Real}[B(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true), Reaction{Any,Float64}(compartment*k2*B(t), Term{Real}[B(t)], Term{Real}[A(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => -1.0, A(t) => 1.0], true)]"
+# truerxs = Reaction{Any,Float64}(compartment*k1*A(t), Term{Real}[A(t)], Term{Real}[B(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true)
+truerxs = Reaction[Reaction(compartment*k1*A, [A], [B], [1.0], [1.0], only_use_rate=true), Reaction(compartment*k2*B, [B], [A], [1.0], [1.0], only_use_rate=true)]
+@test repr(rxs) == repr(truerxs)
 rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in trueparameters])
 odesys = convert(ModelingToolkit.ODESystem, rs)
 @test repr(ModelingToolkit.get_iv(odesys)) == "t"

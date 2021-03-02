@@ -143,16 +143,20 @@ function getmodel(sbmlfile::String)
 end
 
 """
-    getodes(model)::Array
+    getreactions(model)::Array
 
-Create array of ODEs from a libsbml Model.
+Create array of Reactions from a libsbml model.
 
 # Example
 ```julia-repl
-julia> model = getodes(SBML_FILE)
-2-element Array{Equation,1}:
- Differential(t)(B(t)) ~ compartment*k1*A(t) - (compartment*k2*(B(t)))
- Differential(t)(A(t)) ~ compartment*k2*B(t) - (compartment*k1*(A(t)))
+julia> rxs = getreactions(model)
+2-element Array{ModelingToolkit.Reaction,1}:
+ ModelingToolkit.Reaction{Any,Float64}(compartment*k1*A(t), SymbolicUtils.Term{Real}[A(t)],
+                                       SymbolicUtils.Term{Real}[B(t)], [1.0], [1.0],
+                                       Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true)
+ ModelingToolkit.Reaction{Any,Float64}(compartment*k2*B(t), SymbolicUtils.Term{Real}[B(t)],
+                                       SymbolicUtils.Term{Real}[A(t)], [1.0], [1.0],
+                                       Pair{Any,Float64}[B(t) => -1.0, A(t) => 1.0], true)
 ```
 """
 function getreactions(model)::Array
@@ -182,76 +186,6 @@ function getreactions(model)::Array
         push!(rxs, mtkreaction)
     end
     rxs
-
-    # species = Dict()  # Dict of species and stoichiometry-reactionId tuple they are involved in
-    # for i in 0:model.getNumSpecies()-1
-    #     specie = model.getSpecies(i)
-    #     if (specie.getId() in keys(species))  # || (specie.getBoundaryCondition() == true)
-    #         continue
-    #     end
-    #     species[specie.getId()] = []
-    # end
-
-    # for i in 0:model.getNumReactions()-1
-    #     reaction = model.getReaction(i)
-    #     kinetics = reaction.getKineticLaw()
-    #     for j in 0:reaction.getNumReactants()-1
-    #         ref = reaction.getReactant(j)
-    #         specie = model.getSpecies(ref.getSpecies())
-    #         products = [r.getSpecies() for r in reaction.getListOfProducts()]
-    #         # if specie.getBoundaryCondition() == true
-    #         #     println("continuing...")
-    #         #     continue
-    #         # end
-    #         stoich = -ref.getStoichiometry()
-
-    #         if specie.getName() in products
-    #             stoich_p = reaction.getProduct(specie.getId()).getStoichiometry()
-    #             stoich = stoich_p + stoich
-    #         end
-    #         if stoich < 0
-    #             stoich = string(stoich)
-    #         elseif stoich > 0
-    #             stoich = "+"*string(stoich)
-    #         else
-    #             stoich = ""
-    #         end
-    #         if stoich != ""
-    #             push!(species[specie.getId()], (stoich, reaction.getId()))
-    #         end
-    #     end
-
-    #     for j in 0:reaction.getNumProducts()-1
-    #         ref = reaction.getProduct(j)
-    #         specie = model.getSpecies(ref.getSpecies())
-    #         reactants = [r.getSpecies() for r in reaction.getListOfReactants()]
-    #         if (specie.getName() in reactants)  # || (specie.getBoundaryCondition() == true)
-    #             println("continuing")
-    #             continue
-    #         end
-    #         push!(species[specie.getId()], ("+"*string(ref.getStoichiometry()), reaction.getId()))
-    #     end
-    # end
-
-
-
-    # # Write ODEs
-    # eqs = ModelingToolkit.Equation[]
-    # for specie in keys(species)  # For every species
-    #     if species[specie] != []  # nothing
-    #         lhs = eval(Meta.parse("_Differential($specie)"))
-    #         rhs = "0"
-    #         for (coef, reaction_name) in species[specie]  # For every reaction
-    #             reactionformula = " $coef * ( $(reactions[reaction_name]) )"
-    #             reactionformula = replace(reactionformula, "pow"=>"^")
-    #             rhs = rhs*reactionformula
-    #         end
-    #     rhs = eval(Meta.parse(rhs))
-    #     eqn = ModelingToolkit.Equation(lhs, rhs)  # Todo: kick this line out
-    #     push!(eqs, lhs ~ rhs)
-    #     end
-    # end
-    # eqs
 end
 
 """
