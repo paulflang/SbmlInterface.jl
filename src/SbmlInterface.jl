@@ -1,7 +1,7 @@
 module SbmlInterface
 
 using ModelingToolkit
-export ODESystem, ODEProblem
+export ODESystem, ODEProblem, ReactionSystem
 export @variables, @parameters
 
 using OrdinaryDiffEq
@@ -20,6 +20,6 @@ end
 include("sbml2modelingtoolkit.jl")
 export simulatesbml
 export sbml2odeproblem,sbml2odesystem
-export getmodel,getodes,getparameters,getinitialconditions
+export getmodel,getreactions,getparameters,getinitialconditions
 
 end
