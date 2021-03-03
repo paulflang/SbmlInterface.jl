@@ -29,12 +29,12 @@ true_eqs = ModelingToolkit.Equation[
 @test repr(eqs) == repr(true_eqs)
 true_sys = ModelingToolkit.ODESystem(true_eqs)
 @test repr(ModelingToolkit.get_iv(true_sys)) == "t"
-@test repr(ModelingToolkit.get_states(true_sys)) == "Term{Real}[B(t), A(t)]"
+@test repr(ModelingToolkit.get_states(true_sys)) == "Term{Real, Nothing}[B(t), A(t)]"
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
 @test ModelingToolkit.get_iv(sys) == ModelingToolkit.get_iv(true_sys)
-@test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(sys))
+@test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(true_sys))
 @test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
 
 # I'd like this one to actually compare with `true_parameters` 
