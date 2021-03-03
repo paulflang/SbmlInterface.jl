@@ -7,12 +7,12 @@ model = getmodel(SBML_FILE)
 
 # test getparameters
 parameters = getparameters(model)
-trueparameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
+true_parameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
                                                    b0 => 0.0,
                                                    k1 => 0.8,
                                                    k2 => 0.6,
                                                    compartment => 1.0]
-@test repr(parameters) == repr(trueparameters)
+@test repr(parameters) == repr(true_parameters)
 
 # test getinitialconditions
 u0 = getinitialconditions(model)
@@ -22,25 +22,24 @@ true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
 
 # test getodes
 eqs = getodes(model)
-trueeqs = ModelingToolkit.Equation[
+true_eqs = ModelingToolkit.Equation[
             _Differential(B) ~ 1.0 * (compartment * k1 * A) - 1.0 * (compartment * k2 * B),
             _Differential(A) ~ -1.0 * (compartment * k1 * A) + 1.0 * (compartment * k2 * B)
           ]
-@test repr(eqs) == repr(trueeqs)
-sys = ModelingToolkit.ODESystem(eqs)
-@test repr(ModelingToolkit.get_iv(sys)) == "t"
-@test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
+@test repr(eqs) == repr(true_eqs)
+true_sys = ModelingToolkit.ODESystem(true_eqs)
+@test repr(ModelingToolkit.get_iv(true_sys)) == "t"
+@test repr(ModelingToolkit.get_states(true_sys)) == "Term{Real}[B(t), A(t)]"
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
-@test repr(ModelingToolkit.get_iv(sys)) == "t"
-@test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
-@test repr(ModelingToolkit.get_default_u0(sys)) == "Dict{Term{Real}, Float64}(A(t) => 1.0, B(t) => 0.0)"
+@test ModelingToolkit.get_iv(sys) == ModelingToolkit.get_iv(true_sys)
+@test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(sys))
+@test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
 
-# I'd like this one to actually compare with `trueparameters` 
+# I'd like this one to actually compare with `true_parameters` 
 # getting conversion error MTK.Parameter and Num
-@test repr(ModelingToolkit.get_default_p(sys)) == 
-      "Dict{Sym{ModelingToolkit.Parameter{Real}}, Float64}(b0 => 0.0, k2 => 0.6, compartment => 1.0, a0 => 1.0, k1 => 0.8)"
+@test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
