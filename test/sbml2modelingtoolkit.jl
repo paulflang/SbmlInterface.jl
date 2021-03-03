@@ -29,7 +29,7 @@ true_eqs = ModelingToolkit.Equation[
 @test repr(eqs) == repr(true_eqs)
 true_sys = ModelingToolkit.ODESystem(true_eqs)
 @test repr(ModelingToolkit.get_iv(true_sys)) == "t"
-@test repr(ModelingToolkit.get_states(true_sys)) == "Term{Real, Nothing}[B(t), A(t)]"
+@test repr(ModelingToolkit.get_states(true_sys)) == "Term{Real}[B(t), A(t)]"
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
