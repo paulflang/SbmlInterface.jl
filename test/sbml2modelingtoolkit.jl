@@ -32,9 +32,15 @@ sys = ModelingToolkit.ODESystem(eqs)
 @test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
     
 # test sbml2odesystem
-sys,u0,p = sbml2odesystem(SBML_FILE)
+sys = sbml2odesystem(SBML_FILE)
 @test repr(ModelingToolkit.get_iv(sys)) == "t"
 @test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[B(t), A(t)]"
+@test repr(ModelingToolkit.get_default_u0(sys)) == "Dict{Term{Real}, Float64}(A(t) => 1.0, B(t) => 0.0)"
+
+# I'd like this one to actually compare with `trueparameters` 
+# getting conversion error MTK.Parameter and Num
+@test repr(ModelingToolkit.get_default_p(sys)) == 
+      "Dict{Sym{ModelingToolkit.Parameter{Real}}, Float64}(b0 => 0.0, k2 => 0.6, compartment => 1.0, a0 => 1.0, k1 => 0.8)"
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))

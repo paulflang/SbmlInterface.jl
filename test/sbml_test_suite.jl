@@ -36,6 +36,10 @@ all_files = extract_xmls(path)
 n = length(all_files)
 @test n > 0
 
+# speed up CI
+TEST_ON = 50
+all_files = all_files[1:TEST_ON]
+
 models = getmodel.(all_files); 
 ps = getparameters.(models); 
 u0s = call_save_err(getinitialconditions, models); 
