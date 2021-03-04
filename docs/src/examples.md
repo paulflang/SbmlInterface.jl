@@ -6,7 +6,7 @@ CurrentModule = SbmlInterface
 
 ## G2/M cell cycle transition
 
-The SbmlInterface GitHub repository contains a [version]() of the [Vinod et Novak model](https://www.sciencedirect.com/science/article/pii/S0014579315000873) of the G2/M cell cycle transition. The model contains 13 species and 24 parameters.
+The SbmlInterface GitHub repository contains a [version](https://github.com/paulflang/SbmlInterface.jl/blob/main/examples/Vinod_FEBS2015/model_Vinod_FEBS2015.xml) of the [Vinod et Novak model](https://www.sciencedirect.com/science/article/pii/S0014579315000873) of the G2/M cell cycle transition. The model contains 13 species and 24 parameters.
 
 As mentioned in the section [Tutorial](@ref), you can simulate the SBML model with the `simulatesbml` function:
 

@@ -10,7 +10,7 @@ The software is released under the [MIT license](https://github.com/paulflang/Sb
 
 ## Development team
 
-This package was developed by the [Paul F. Lang](https://www.linkedin.com/in/paul-lang-7b54a81a3/) at the University of Oxford, UK.
+This package was developed by the [Paul F. Lang](https://www.linkedin.com/in/paul-lang-7b54a81a3/) at the University of Oxford, UK and [Anand Jain](https://github.com/anandijain) at the University of Chicago, USA.
 
 ## Acknowledgements
 
@@ -18,4 +18,4 @@ We would like to thank [Frank T. Bergmann](https://www.cos.uni-heidelberg.de/ind
 
 ## Questions and comments
 
-Please contact [Paul F. Lang](mailto:paul.lang@wolfson.ox.ac.uk) with any questions or comments.
+Please contact [Paul F. Lang](mailto:paul.lang@wolfson.ox.ac.uk) or [Anand Jain](mailto:anandj@uchicago.edu) with any questions or comments.

@@ -27,5 +27,6 @@ As SbmlInterface.jl relies on the Python libsbml library, please make sure your 
   ```julia
   julia> ]
   (v1.5) pkg> activate .
+  (SbmlInterface) pkg>
   ```
 When `using SbmlInterface` Julia will be able to communicate with the python virtual environment where you have installed libsbml.
