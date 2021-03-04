@@ -7,12 +7,12 @@ model = getmodel(SBML_FILE)
 
 # test getparameters
 parameters = getparameters(model)
-trueparameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
+true_parameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
                                                    b0 => 0.0,
                                                    k1 => 0.8,
                                                    k2 => 0.6,
                                                    compartment => 1.0]
-@test repr(parameters) == repr(trueparameters)
+@test repr(parameters) == repr(true_parameters)
 
 # test getinitialconditions
 @parameters t
@@ -23,25 +23,29 @@ true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
 
 # test getodes
 rxs = getreactions(model)
-# truerxs = "Reaction[Reaction{Any,Float64}(compartment*k1*A(t), Term{Real}[A(t)], Term{Real}[B(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true), Reaction{Any,Float64}(compartment*k2*B(t), Term{Real}[B(t)], Term{Real}[A(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => -1.0, A(t) => 1.0], true)]"
-# truerxs = Reaction{Any,Float64}(compartment*k1*A(t), Term{Real}[A(t)], Term{Real}[B(t)], [1.0], [1.0], Pair{Any,Float64}[B(t) => 1.0, A(t) => -1.0], true)
 truerxs = Reaction[Reaction(compartment*k1*A, [A], [B], [1.0], [1.0], only_use_rate=true), Reaction(compartment*k2*B, [B], [A], [1.0], [1.0], only_use_rate=true)]
 @test repr(rxs) == repr(truerxs)
-rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in trueparameters])
+rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in true_parameters])
 odesys = convert(ModelingToolkit.ODESystem, rs)
 @test repr(ModelingToolkit.get_iv(odesys)) == "t"
 @test repr(ModelingToolkit.get_states(odesys)) == "Term{Real}[A(t), B(t)]"
     
 # test sbml2odesystem
-sys,u0,p = sbml2odesystem(SBML_FILE)
-@test repr(ModelingToolkit.get_iv(sys)) == "t"
-@test repr(ModelingToolkit.get_states(sys)) == "Term{Real}[A(t), B(t)]"
+sys = sbml2odesystem(SBML_FILE)
+true_eqs = ModelingToolkit.Equation[
+            _Differential(A) ~ -1.0 * (compartment * k1 * A) + 1.0 * (compartment * k2 * B),
+            _Differential(B) ~ 1.0 * (compartment * k1 * A) - 1.0 * (compartment * k2 * B)]
+true_sys = ModelingToolkit.ODESystem(true_eqs)
+@test ModelingToolkit.get_iv(sys) == ModelingToolkit.get_iv(true_sys)
+@test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(true_sys))
+@test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
+@test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
 @test prob.u0 == [1.0, 0.0]  # "Pair{ModelingToolkit.Num,Float64}[A => 1.0,B => 0.0]"
 @test prob.tspan == (0.0, 10.0)
-@test prob.p == [1.0, 0.0, 0.8, 0.6, 1.0]  # Todo: try removing the Set() when new ODEproblem version is released.
+@test prob.p == [1.0, 0.8, 0.6]  # Todo: try removing the Set() when new ODEproblem version is released.
 @test_nowarn OrdinaryDiffEq.solve(prob,OrdinaryDiffEq.Tsit5())
 @test_nowarn sbml2odeproblem(SBML_FILE,(0.0,1.0),jac=false)
 
