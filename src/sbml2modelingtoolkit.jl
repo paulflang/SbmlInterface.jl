@@ -62,28 +62,26 @@ function sbml2odeproblem(sbmlfile::String,tspan;jac::Bool=true)
     model = SbmlInterface.getmodel(sbmlfile)
     p = getparameters(model)
     u0 = getinitialconditions(model)
-    sys,u0,p = sbml2odesystem(sbmlfile)
-    ModelingToolkit.ODEProblem(sys,u0,tspan,p)
+    sys= sbml2odesystem(sbmlfile)
+    ModelingToolkit.ODEProblem(sys, Pair[], tspan)
 end
 
 """
     sbml2odesystem(sbmlfile::String)
 
-Given an `sbmlfile` return a tuple of `ODESystem`, `u0` and `p`.
+Given an `sbmlfile` return an `ODESystem` with `default_u0` and `default_p` set.
 
 # Example
 ```julia-repl
-julia> sys,u0,p = sbml2odesystem(SBML_FILE)
-(Model ##ODESystem#268 with 2 equations
+julia> sys = sbml2odesystem(SBML_FILE)
+Model ##ODESystem#270 with 2 equations
 States (2):
-  B(t)
-  A(t)
+  B(t) [defaults to 0.0]
+  A(t) [defaults to 1.0]
 Parameters (3):
-  k1
-  k2
-  compartment,
-Pair{Num,Float64}[A(t) => 1.0, B(t) => 0.0],
-Pair{Num,Float64}[k1 => 0.8, k2 => 0.6, compartment => 1.0])
+  k2 [defaults to 0.6]
+  compartment [defaults to 1.0]
+  k1 [defaults to 0.8]
 ```
 """
 function sbml2odesystem(sbmlfile::String)
@@ -96,8 +94,8 @@ function sbml2odesystem(sbmlfile::String)
     p = getparameters(model)
     u0 = getinitialconditions(model)
     eqs = getodes(model)
-    sys = ModelingToolkit.ODESystem(eqs)
-    sys,u0,p
+    sys = ModelingToolkit.ODESystem(eqs; default_p=p, default_u0=u0)
+    sys
 end
 
 """
@@ -174,7 +172,7 @@ function getodes(model)::Array
     species = Dict()  # Dict of species and stoichiometry-reactionId tuple they are involved in
     for i in 0:model.getNumSpecies()-1
         specie = model.getSpecies(i)
-        if (specie.getBoundaryCondition() == true) || (specie.getId() in keys(species))
+        if (specie.getId() in keys(species))  # || (specie.getBoundaryCondition() == true)
             continue
         end
         species[specie.getId()] = []
@@ -187,9 +185,10 @@ function getodes(model)::Array
             ref = reaction.getReactant(j)
             specie = model.getSpecies(ref.getSpecies())
             products = [r.getSpecies() for r in reaction.getListOfProducts()]
-            if specie.getBoundaryCondition() == true
-                continue
-            end
+            # if specie.getBoundaryCondition() == true
+            #     println("continuing...")
+            #     continue
+            # end
             stoich = -ref.getStoichiometry()
 
             if specie.getName() in products
@@ -212,7 +211,8 @@ function getodes(model)::Array
             ref = reaction.getProduct(j)
             specie = model.getSpecies(ref.getSpecies())
             reactants = [r.getSpecies() for r in reaction.getListOfReactants()]
-            if (specie.getBoundaryCondition() == true) || (specie.getName() in reactants)
+            if (specie.getName() in reactants)  # || (specie.getBoundaryCondition() == true)
+                # println("continuing")
                 continue
             end
             push!(species[specie.getId()], ("+"*string(ref.getStoichiometry()), reaction.getId()))
@@ -225,7 +225,7 @@ function getodes(model)::Array
     # Write ODEs
     eqs = ModelingToolkit.Equation[]
     for specie in keys(species)  # For every species
-        if species[specie] != nothing
+        if species[specie] != []  # nothing
             lhs = eval(Meta.parse("_Differential($specie)"))
             rhs = "0"
             for (coef, reaction_name) in species[specie]  # For every reaction
