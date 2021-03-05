@@ -41,6 +41,7 @@ true_sys = ModelingToolkit.ODESystem(true_eqs)
 @test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(true_sys))
 @test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
 @test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
+
 # test mtk `@named`
 @named named_sys = sbml2odesystem(SBML_FILE)
 @test nameof(named_sys) == :named_sys
@@ -49,7 +50,9 @@ true_sys = ModelingToolkit.ODESystem(true_eqs)
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
 @test prob.u0 == [1.0, 0.0]  # "Pair{ModelingToolkit.Num,Float64}[A => 1.0,B => 0.0]"
 @test prob.tspan == (0.0, 10.0)
-@test prob.p == [1.0, 0.8, 0.6]  # Todo: try removing the Set() when new ODEproblem version is released.
+
+# I don't think this is deterministic so adding sorted since they are unique
+@test sort(prob.p) == sort([1.0, 0.8, 0.6])  # Todo: try removing the Set() when new ODEproblem version is released.
 @test_nowarn OrdinaryDiffEq.solve(prob,OrdinaryDiffEq.Tsit5())
 @test_nowarn sbml2odeproblem(SBML_FILE,(0.0,1.0),jac=false)
 
