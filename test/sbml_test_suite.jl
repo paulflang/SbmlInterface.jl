@@ -47,7 +47,7 @@ ps = getparameters.(models);
 u0s = call_save_err(getinitialconditions, models); 
 rxs = call_save_err(getreactions, models); 
 systems = call_save_err(sbml2odesystem, all_files); 
-probs = call_save_err(x->sbml2odeproblem(x, (0., 1.)), all_files); 
+probs = call_save_err(x -> sbml2odeproblem(x, (0., 1.)), all_files); 
 
 errored_mask = @. typeof(systems) <: Exception
 errs = systems[errored_mask, :]
