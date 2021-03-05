@@ -67,7 +67,7 @@ function sbml2odeproblem(sbmlfile::String,tspan;jac::Bool=true)
 end
 
 """
-    sbml2odesystem(sbmlfile::String)
+    sbml2odesystem(sbmlfile::String; kwargs...)
 
 Given an `sbmlfile` return an `ODESystem` with `default_u0` and `default_p` set.
 
@@ -84,7 +84,7 @@ Parameters (3):
   k1 [defaults to 0.8]
 ```
 """
-function sbml2odesystem(sbmlfile::String)
+function sbml2odesystem(sbmlfile::String; kwargs...)
     if !isfile(sbmlfile)
         throw(DomainError("`sbmlfile` is not a file"))
     elseif !(splitext(sbmlfile)[2] in (".xml", ".sbml"))
@@ -97,7 +97,7 @@ function sbml2odesystem(sbmlfile::String)
     rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in u0], [item.first for item in p])
     odesys = convert(ModelingToolkit.ODESystem, rs)
     eqs = odesys.eqs
-    sys = ModelingToolkit.ODESystem(eqs; default_p=p, default_u0=u0)
+    sys = ModelingToolkit.ODESystem(eqs; default_p=p, default_u0=u0, kwargs...)
     sys
 end
 
