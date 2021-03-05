@@ -16,10 +16,11 @@ true_parameters = Pair{ModelingToolkit.Num,Float64}[a0 => 1.0,
 
 # test getinitialconditions
 @parameters t
+@variables A(t) B(t)
 u0 = getinitialconditions(model)
 true_u0 = Pair{ModelingToolkit.Num,Float64}[A => 1.0,
                                             B => 0.0]
-@test repr(u0) == repr(true_u0)
+@test isequal(u0, true_u0)
 
 # test getodes
 rxs = getreactions(model)
@@ -27,8 +28,8 @@ truerxs = Reaction[Reaction(compartment*k1*A, [A], [B], [1.0], [1.0], only_use_r
 @test repr(rxs) == repr(truerxs)
 rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in true_parameters])
 odesys = convert(ModelingToolkit.ODESystem, rs)
-@test repr(ModelingToolkit.get_iv(odesys)) == "t"
-@test repr(ModelingToolkit.get_states(odesys)) == "Term{Real}[A(t), B(t)]"
+@test isequal(Num(ModelingToolkit.get_iv(odesys)), t)
+@test isequal(Num.(ModelingToolkit.get_states(odesys)), [A, B])
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
@@ -40,6 +41,9 @@ true_sys = ModelingToolkit.ODESystem(true_eqs)
 @test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(true_sys))
 @test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
 @test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
+# test mtk `@named`
+@named named_sys = sbml2odesystem(SBML_FILE)
+@test nameof(named_sys) == :named_sys
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
