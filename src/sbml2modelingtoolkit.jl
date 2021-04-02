@@ -97,7 +97,7 @@ function sbml2odesystem(sbmlfile::String)
     rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in u0], [item.first for item in p])
     odesys = convert(ModelingToolkit.ODESystem, rs)
     eqs = odesys.eqs
-    sys = ModelingToolkit.ODESystem(eqs; default_p=p, default_u0=u0)
+    sys = ModelingToolkit.ODESystem(eqs; defaults=vcat(p,u0))
     sys
 end
 

@@ -28,7 +28,7 @@ truerxs = Reaction[Reaction(compartment*k1*A, [A], [B], [1.0], [1.0], only_use_r
 rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in true_parameters])
 odesys = convert(ModelingToolkit.ODESystem, rs)
 @test repr(ModelingToolkit.get_iv(odesys)) == "t"
-@test repr(ModelingToolkit.get_states(odesys)) == "Term{Real}[A(t), B(t)]"
+@test repr(ModelingToolkit.get_states(odesys)) == "Term{Real,Nothing}[A(t), B(t)]"
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
@@ -38,8 +38,8 @@ true_eqs = ModelingToolkit.Equation[
 true_sys = ModelingToolkit.ODESystem(true_eqs)
 @test ModelingToolkit.get_iv(sys) == ModelingToolkit.get_iv(true_sys)
 @test isequal(ModelingToolkit.get_states(sys), ModelingToolkit.get_states(true_sys))
-@test ModelingToolkit.get_default_u0(sys) == Dict(true_u0)
-@test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
+@test ModelingToolkit.get_defaults(sys) == Dict(vcat(true_u0, true_parameters))
+#@test collect(values(ModelingToolkit.get_default_p(sys))) == collect(values(Dict(true_parameters)))
 
 # test sbml2odeproblem
 prob = sbml2odeproblem(SBML_FILE,(0.0,10.0))
