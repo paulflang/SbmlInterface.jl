@@ -180,8 +180,10 @@ function getreactions(model)::Array
         kineticformula = eval(Meta.parse(replace(kineticformula, "pow"=>"^")))
         substrates = [eval(Meta.parse(substrate.getSpecies())) for substrate in reaction.getListOfReactants()]
         substoich = [substrate.getStoichiometry() for substrate in reaction.getListOfReactants()]
+        if (length(substrates)==0) substrates = nothing; substoich = nothing end
         products = [eval(Meta.parse(product.getSpecies())) for product in reaction.getListOfProducts()]
         prodstoich = [product.getStoichiometry() for product in reaction.getListOfProducts()]
+        if (length(products)==0) products = nothing; prodstoich = nothing end
         mtkreaction = ModelingToolkit.Reaction(kineticformula, substrates, products, substoich, prodstoich, only_use_rate=true)
         push!(rxs, mtkreaction)
     end
