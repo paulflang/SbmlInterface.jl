@@ -28,7 +28,7 @@ truerxs = Reaction[Reaction(compartment*k1*A, [A], [B], [1.0], [1.0], only_use_r
 rs  = ModelingToolkit.ReactionSystem(rxs, t, [item.first for item in true_u0], [item.first for item in true_parameters])
 odesys = convert(ModelingToolkit.ODESystem, rs)
 @test repr(ModelingToolkit.get_iv(odesys)) == "t"
-@test repr(ModelingToolkit.get_states(odesys)) == "Term{Real,Nothing}[A(t), B(t)]"
+@test repr(ModelingToolkit.get_states(odesys)) == "Term{Real, Nothing}[A(t), B(t)]"
     
 # test sbml2odesystem
 sys = sbml2odesystem(SBML_FILE)
