@@ -5,7 +5,7 @@
 [![Build Status](https://github.com/paulflang/SbmlInterface.jl/workflows/CI/badge.svg)](https://github.com/paulflang/SbmlInterface.jl/actions)
 [![Coverage](https://codecov.io/gh/paulflang/SbmlInterface.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/paulflang/SbmlInterface.jl)
 
-> :warning: **SbmlInterface will soon be deprecated**. For more information, please refer to [issue #31 on SBML.jl](https://github.com/LCSB-BioCore/SBML.jl/issues/31).
+> :warning: **SbmlInterface will soon be deprecated**. Please use [SBMLToolkit.jl](https://github.com/SciML/SBMLToolkit.jl) for dynamic SBML models.
 
 SbmlInterface.jl is a lightweight tool to import models specified in the Systems Biology Markup Language (SBML) into Julia. More specifically, SbmlInterface.jl uses the Python libsbml library to extract ordinary differential equations, initial conditions and parameter values from SBML files. Events and constraints and several other SBML components are not yet supported. There are several ways to specify the same model in SBML and SbmlInterface. Please help us improving SbmlInterface.jl by creating a GitHub issue if you experience errors when converting your SBML model to Julia.
 
